@@ -91,9 +91,10 @@ class UserServiceTest {
     @Test
     public void updateUser_Success()
     {
-        User user=new user("ranga","nayak","132567543,"
+        User user=new User("ranga","nayak","132567543,"
                 ,"23a,khana nagar",new Date(13-02-2002),7L);
-        User user = new User();
+        User User
+                = new User();
         user.setUser_id(1L);
         ResponseEntity<User> updatedUser = ResponseEntity.ok(user);
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
@@ -108,7 +109,7 @@ class UserServiceTest {
     {
 
         when(userRepository.findByEmail("guru@gmail.com")).thenReturn(null);
-        String response=userservice.deleteUser("guru@gmail.com");
+        ResponseEntity<User> response=userservice.deleteUser("guru@gmail.com");
         Assert.assertEquals("user not found",response);
     }
 
@@ -119,7 +120,7 @@ class UserServiceTest {
 
         User user=new User("sadap","khan","khan@gmail.com",new Date(2001-11-11 ) ,"8765432234","1,Ram Street,Bangalore");
         when(userRepository.findByEmail("khan@gmail.com")).thenReturn(user);
-        String response=userservice.deleteUser("khan@gmail.com");
+        ResponseEntity<User> response=userservice.deleteUser("khan@gmail.com");
         Assert.assertEquals("Successfully deleted",response);
     }
 

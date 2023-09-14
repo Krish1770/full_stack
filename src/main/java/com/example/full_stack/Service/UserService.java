@@ -3,12 +3,15 @@ package com.example.full_stack.Service;
 //import DTO.UserUpdateDTO;
 import com.example.full_stack.DTO.LoginDTO;
 import com.example.full_stack.DTO.LoginResponseDTO;
+//import com.example.full_stack.DTO.ValidateDTO;
 import com.example.full_stack.DTO.ValidateDTO;
 import com.example.full_stack.Model.User;
+import com.example.full_stack.Repository.StatusRepository;
 import com.example.full_stack.Repository.UserRepository;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,19 +34,38 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private JavaMailSender mailSender;
-    public String createUser(User user) {
+    private StatusRepository statusRepository;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public ResponseEntity<User> createUser(User user) {
+
+        User newUser=new User();
         if(userRepository.findByEmail(user.getEmail())==null) {
             user.setUpdateDate(new Date());
             user.setRole("user");
-            user.setStatus("registered");
+            user.setStatus(statusRepository.findByStatusId(1L));
             userRepository.save(user);
 
-            return "Added Successfully";
-            }
+            String link="http://localhost:3000/accountverification?"+user.getEmail();
+            System.out.println("Hi");
 
-        return "given email id already exist";
+            SimpleMailMessage message=new SimpleMailMessage();
+            message.setFrom("rameshkrishnaprasath@gmail.com");
+            message.setTo(user.getEmail());
+//            message.setText("unless");
+            message.setText(link);
+            message.setSubject("Account Verification!!!");
+
+
+            mailSender.send(message);
+            return ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"User Added Successfully",""));
+
+        }
+
+      return ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Email alreedy exist",""));
+
 
     }
 
@@ -60,7 +82,7 @@ public class UserService {
 //        return ResponseEntity.ok(user);
 //    }
 
-    public String UpdateUser(User user) {
+    public ResponseEntity<User> UpdateUser(User user) {
 
 
         User updatedUser=userRepository.findByEmail(user.getEmail());
@@ -75,39 +97,42 @@ public class UserService {
             updatedUser.setPhone_number(user.getPhone_number());
             updatedUser.setUpdateDate(new Date());
             userRepository.save(updatedUser);
-            return "update successful";
+            return(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Updated Succesfully","")));
+
         }
-        return "email not found";
+        return(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"email not found","")));
 
 
     }
 
-    public String deleteUser(String email)
+    public ResponseEntity<User> deleteUser(String email)
     {
         User user = userRepository.findByEmail(email);
 
         if(user==null)
-         return "user not found";
+            return(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"User not found","")));
 
         else {
-            userRepository.delete(user);
-           return "Successfully deleted";
+            return(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Update Succesfully","")));
+
         }
     }
 
     public ResponseEntity<LoginResponseDTO> CheckLogin(LoginDTO loginDTO) {
         User newUser=(userRepository.findByEmail(loginDTO.getEmail()));
         ValidateDTO tempUser ;
+        System.out.println(newUser.toString());
         if(newUser==null)
         {
-               return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(HttpStatus.NOT_FOUND,"User not found",""));
+               return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDTO(HttpStatus.NOT_FOUND,"User not found",""));
         }
         else
         {
             if(loginDTO.getPassword().equals(newUser.getPassword()))
             {
                 tempUser=new ValidateDTO(newUser);
-                  if(newUser.getStatus().equals("verified"))
+                System.out.println("gedf"+tempUser.toString());
+                  if(((newUser.getStatus()).getStatusId()).equals(1L))
                   {
                       System.out.println(tempUser.getEmail());
 
@@ -123,10 +148,11 @@ public class UserService {
         }
     }
 
-    public void getEmailOfUser(String email) {
+    public ResponseEntity<User> getEmailOfUser(String email) {
 
-        String link="http://localhost:3000/forgot";
+        String link="http://localhost:3000/forgot?"+email;
         System.out.println("Hi");
+
         SimpleMailMessage message=new SimpleMailMessage();
         message.setFrom("rameshkrishnaprasath@gmail.com");
         message.setTo(email);
@@ -136,6 +162,47 @@ public class UserService {
 
         mailSender.send(message);
 
+        return(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Reset email link","")));
 
+
+
+
+
+    }
+
+    public ResponseEntity<ValidateDTO> changePassword(LoginDTO loginDTO) {
+
+           User newUser=(userRepository.findByEmail(loginDTO.getEmail()));
+        System.out.println(newUser.toString());
+
+        if(newUser!=null)
+           {
+               System.out.println("yes");
+               newUser.setPassword((loginDTO.getPassword()));
+                userRepository.save(newUser);
+               return(ResponseEntity.status(HttpStatus.OK).body(new ValidateDTO(HttpStatus.OK,"Password changed","")));
+
+           }
+        return(ResponseEntity.status(HttpStatus.OK).body(new ValidateDTO(HttpStatus.OK,"Password not changed","")));
+
+
+
+    }
+
+    public ResponseEntity<ValidateDTO> updateStatus(String email)
+    {
+        User newUser =userRepository.findByEmail(email);
+        System.out.println("Hi 1 "+email);
+        if(newUser!=null)
+        {
+            System.out.println(newUser.toString());
+            newUser.setStatus(statusRepository.findByStatusId(2L));
+            userRepository.save(newUser);
+
+            return(ResponseEntity.status(HttpStatus.OK).body(new ValidateDTO(HttpStatus.OK,"Status changed","")));
+
+        }
+
+        return(ResponseEntity.status(HttpStatus.OK).body(new ValidateDTO(HttpStatus.OK,"Status not updated","")));
     }
 }

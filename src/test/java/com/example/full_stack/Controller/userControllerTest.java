@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
@@ -37,9 +38,10 @@ class userControllerTest {
     public void addUser_Success()
     {
         User user=new User();
-        when(userService.createUser(user)).thenReturn("Added Successfully");
+        when(userService.createUser(user)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Successfully added","")));
 
-        String response=usercontroller.createUser(user);
+
+        ResponseEntity<User> response=usercontroller.createUser(user);
         Assert.assertEquals("Added Successfully",response);
 
     }
@@ -48,10 +50,11 @@ class userControllerTest {
     public void addUser_Fail()
     {
         User user=new User();
-        when(userService.createUser(user)).thenReturn("given email id already exist");
+        when(userService.createUser(user)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Email alreedy exist","")));
 
-        String response=usercontroller.createUser(user);
-        Assert.assertEquals("given email id already exist",response);
+
+        ResponseEntity<User> response=usercontroller.createUser(user);
+        Assert.assertEquals("Email alreedy exist",response);
     }
 
     @Test
@@ -67,9 +70,9 @@ class userControllerTest {
     @Test
     public void deleteUser_Success()
     {
-          when(userService.deleteUser("karan@gmail.com")).thenReturn(("Successfully deleted"));
+          when(userService.deleteUser("karan@gmail.com")).thenReturn((ResponseEntity<User> ) ));
 
-          String response=usercontroller.DeleteUser("karan@gmail.com");
+        ResponseEntity<User>  response =usercontroller.DeleteUser("karan@gmail.com");
 
           Assert.assertEquals("Successfully deleted",response);
     }
@@ -82,9 +85,9 @@ class userControllerTest {
         User user = new User();
         user.setUser_id(1L);
         String updatedUser = "update successful";
-        when(userService.UpdateUser(userUpdate)).thenReturn(updatedUser);
+        when(userService.UpdateUser(userUpdate)).thenReturn((ResponseEntity.status(HttpStatus.OK).body(new User(HttpStatus.NOT_FOUND,"Update Succesfully",""))));
 
-      String response = usercontroller.UpdateUser(userUpdate);
+  ResponseEntity<User>  response   = usercontroller.UpdateUser(userUpdate);
 
         Assert.assertEquals(updatedUser,response);
     }

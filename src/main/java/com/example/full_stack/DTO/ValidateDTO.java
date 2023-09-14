@@ -1,11 +1,23 @@
 package com.example.full_stack.DTO;
 
 import com.example.full_stack.Model.User;
+import org.springframework.http.HttpStatus;
 
 public class ValidateDTO {
     private String role;
 
-    private String  status;
+    public ValidateDTO(HttpStatus httpStatus, String passwordChanged, String s) {
+    }
+
+    public Long getStatus_id() {
+        return status_id;
+    }
+
+    public void setStatus_id(Long status_id) {
+        this.status_id = status_id;
+    }
+
+    private Long  status_id;
 
     private  String email;
 
@@ -18,13 +30,7 @@ public class ValidateDTO {
         this.role = role;
     }
 
-    public String getStatus() {
-        return status;
-    }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public String getEmail() {
         return email;
@@ -38,7 +44,7 @@ public class ValidateDTO {
     {
          role= user.getRole();
          email= user.getEmail();
-         status=user.getStatus();
+         status_id=user.getStatus().getStatusId();
     }
 }
 

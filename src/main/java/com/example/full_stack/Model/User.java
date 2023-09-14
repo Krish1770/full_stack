@@ -4,6 +4,7 @@ package com.example.full_stack.Model;
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.boot.autoconfigure.web.WebProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import java.util.Date;
@@ -21,19 +22,46 @@ public class User {
     @Column
     private Date updateDate;
 
-    public String getStatus() {
+    public User(HttpStatus httpStatus, String userNotFound, String s) {
+    }
+
+    public User(String ranga, String number, String nayak, String mail, Date date, String number1, String s) {
+    }
+
+    public User(String sadap, String khan, String mail, Date date, String number, String s) {
+    }
+
+    public User(String ranga, String nayak, String mail, String s, Date date, long l) {
+    }
+
+
+//    public String getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(String status) {
+//        this.status = status;
+//    }
+
+//    @Column(name="status")
+//    private String status;
+
+
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    @Column(name="status")
-    private String status;
+    @ManyToOne(targetEntity = Status.class,cascade = CascadeType.ALL)
+    @JoinColumn(name = "statusId",referencedColumnName = "statusId")
+     private Status status;
 
-    public User(String krish, String kumar, String mail, Date date, String number, String s) {
-    }
+
+//    public User(String krish, String kumar, String mail, Date date, String number, String s) {
+//    }
 
     public String getPassword() {
         return password;
@@ -79,6 +107,7 @@ public class User {
     @Column(name="date_of_birth")
     private Date date_of_birth;
 
+
     @Column(name="phone_number")
     private String phone_number;
 
@@ -117,6 +146,23 @@ public class User {
 
     public String getLast_name() {
         return last_name;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "user_id=" + user_id +
+                ", updateDate=" + updateDate +
+//                ", status='" + status + '\'' +
+                ", password='" + password + '\'' +
+                ", first_name='" + first_name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", email='" + email + '\'' +
+                ", date_of_birth=" + date_of_birth +
+                ", phone_number='" + phone_number + '\'' +
+                ", role='" + role + '\'' +
+                ", address='" + address + '\'' +
+                '}';
     }
 
     public void setLast_name(String last_name) {
